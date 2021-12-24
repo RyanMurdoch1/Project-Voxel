@@ -1,32 +1,40 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class MouseSelectionManager : MonoBehaviour
 {
-    [SerializeField] private AgentController agentController;
     private Camera _camera;
-    private LayerMask _traversableLayer;
+    private ICommandable _selectedCommandable;
 
-    private void Awake()
-    {
-        _camera = Camera.main;
-        _traversableLayer = LayerMask.NameToLayer("Traversable");
-    }
+    private void Awake() => _camera = Camera.main;
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!Input.GetMouseButtonDown(0)) return;
+        var ray = _camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out var hit))
         {
-            var ray = _camera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out var hit))
-            {
-                agentController.AddAgentDestination(hit.point, Input.GetKey(KeyCode.LeftShift));
-            }
+            HandleSelection(hit);
         }
     }
-}
 
-// ICommandable
+    private void HandleSelection(RaycastHit hit)
+    {
+        if (hit.transform.CompareTag(WorldTagHelper.Destination) && _selectedCommandable != null)
+        {
+            _selectedCommandable.IssueDirection(hit.point, Input.GetKey(KeyCode.LeftShift));
+            return;
+        }
+        
+        if (hit.transform.CompareTag(WorldTagHelper.Agent))
+        {
+            TrySelectHitAgent(hit);
+        }
+    }
+
+    private void TrySelectHitAgent(RaycastHit hit)
+    {
+        _selectedCommandable?.Unselect();
+        hit.transform.TryGetComponent(out _selectedCommandable);
+        _selectedCommandable.Select();
+    }
+}
