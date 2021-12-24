@@ -1,18 +1,63 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class AgentController : MonoBehaviour
 {
-    [SerializeField] private Transform target;
+    private const float ReachedDestinationThreshold = 0.1f;
     private NavMeshAgent _agent;
+    private Queue<Vector3> _destinationsQueue;
+    private Vector3 _currentDestination;
 
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _destinationsQueue = new Queue<Vector3>(5);
     }
 
+    public void AddAgentDestination(Vector3 destination, bool addToQueue)
+    {
+        if (IsDestinationForQueue(destination, addToQueue))
+        {
+            _destinationsQueue.Enqueue(destination);
+        }
+        else
+        {
+            _destinationsQueue.Clear();
+            _currentDestination = destination;
+        }
+        
+        UpdateAgentPosition();
+    }
+    
     private void Update()
     {
-        _agent.destination = target.position;
+        CheckDestinationQueue();
+    }
+
+    private bool IsDestinationForQueue(Vector3 destination, bool addToQueue)
+    {
+        return addToQueue && _destinationsQueue.Count != 0 || addToQueue && destination != _currentDestination;
+    }
+    
+    private void UpdateAgentPosition()
+    {
+        if (_currentDestination != Vector3.zero)
+        {
+            _agent.destination = _currentDestination;
+        }
+    }
+
+    private void CheckDestinationQueue()
+    {
+        if (AgentHasQueuedDestination())
+        {
+            _agent.destination = _destinationsQueue.Dequeue();
+        }
+    }
+
+    private bool AgentHasQueuedDestination()
+    {
+        return _agent.remainingDistance < ReachedDestinationThreshold && _destinationsQueue.Count != 0;
     }
 }
