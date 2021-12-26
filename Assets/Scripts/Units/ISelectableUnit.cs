@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public interface ICommandable
+public interface ISelectableUnit
 {
     void Select();
     void Unselect();
