@@ -1,5 +1,5 @@
 ﻿public static class WorldTagHelper
 {
-    public static string Destination = "Destination";
-    public static string Agent = "Agent";
+    public const string Destination = "Destination";
+    public const string Agent = "Agent";
 }

@@ -23,6 +23,7 @@ public class UnitController : MonoBehaviour, ISelectableUnit
         if (IsDestinationForQueue(destination, addToQueue))
         {
             _destinationsQueue.Enqueue(destination);
+            Debug.Log("Enqueueing Destination");
         }
         else
         {
@@ -46,7 +47,11 @@ public class UnitController : MonoBehaviour, ISelectableUnit
         return addToQueue && _destinationsQueue.Count != 0 || addToQueue && destination != _currentDestination;
     }
     
-    private void UpdateUnitDestination() => _unit.destination = _currentDestination;
+    private void UpdateUnitDestination()
+    {
+        _unit.destination = _currentDestination;
+        Debug.Log("Updating Destination");
+    }
 
     private void CheckDestinationQueue()
     {

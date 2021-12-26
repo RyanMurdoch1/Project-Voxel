@@ -1,29 +1,21 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(IWorldTargetSelector))]
 public class MouseSelectionManager : MonoBehaviour
 {
-    [SerializeField] private InputActionAsset inputActions;
-    private InputAction _select, _interact;
-
     private IWorldTargetSelector _worldTargetSelector;
     private ISelectableUnit _selectedUnit;
 
-    private void Awake()
+    private void OnEnable()
     {
-        var map = inputActions.FindActionMap("Player");
         _worldTargetSelector = GetComponent<IWorldTargetSelector>();
-        _select = map.FindAction("Select");
-        _interact = map.FindAction("Interact");
-        _select.performed += OnSelect;
-        _interact.performed += OnInteract;
+        InputManager.OnSelection += OnSelect;
+        InputManager.OnInteraction += OnInteract;
     }
 
-    private void OnSelect(InputAction.CallbackContext context)
+    private void OnSelect()
     {
-        var selection = _worldTargetSelector.ReturnTarget();
-        if (!selection.SuccessfulSelection) return;
+        if (!WasSuccessfulSelection(out var selection)) return;
         
         if (selection.SelectedTransform.CompareTag(WorldTagHelper.Agent))
         {
@@ -31,15 +23,27 @@ public class MouseSelectionManager : MonoBehaviour
         }
     }
 
-    private void OnInteract(InputAction.CallbackContext context)
+    private void OnInteract()
     {
-        var selection = _worldTargetSelector.ReturnTarget();
-        if (!selection.SuccessfulSelection) return;
+        if (!WasSuccessfulSelection(out var selection)) return;
         
         if (selection.SelectedTransform.CompareTag(WorldTagHelper.Destination) && _selectedUnit != null)
         {
-            _selectedUnit.IssueDirection(selection.SelectionPoint, Input.GetKey(KeyCode.LeftShift));
+            _selectedUnit.IssueDirection(selection.SelectionPoint, InputManager.QueuingActive);
         }
+    }
+
+    private bool WasSuccessfulSelection(out WorldSelection selection)
+    {
+        var worldSelection = _worldTargetSelector.ReturnTarget();
+        if (!worldSelection.SuccessfulSelection)
+        {
+            selection = worldSelection;
+            return false;
+        }
+
+        selection = worldSelection;
+        return true;
     }
 
     private void TrySelectHitAgent(Component hit)
@@ -51,7 +55,7 @@ public class MouseSelectionManager : MonoBehaviour
 
     private void OnDisable()
     {
-        _select.performed -= OnSelect;
-        _interact.performed -= OnInteract;
+        InputManager.OnSelection -= OnSelect;
+        InputManager.OnInteraction -= OnInteract;
     }
 }

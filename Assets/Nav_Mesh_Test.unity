@@ -166,6 +166,7 @@ GameObject:
   m_Component:
   - component: {fileID: 234040774}
   - component: {fileID: 234040776}
+  - component: {fileID: 234040775}
   m_Layer: 0
   m_Name: Player Input
   m_TagString: Untagged
@@ -187,6 +188,19 @@ Transform:
   m_Father: {fileID: 799987830}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &234040775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234040773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a5ea3546cc4d3591f3fac2a2f18c2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActions: {fileID: -944628639613478452, guid: 9a1b7e24aafe2fb4ebfa82823020acb1, type: 3}
 --- !u!114 &234040776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4466,7 +4480,7 @@ GameObject:
   - component: {fileID: 2091014649}
   - component: {fileID: 2091014648}
   m_Layer: 0
-  m_Name: Interaction Manager
+  m_Name: Mouse Selection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4496,7 +4510,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42bf345e1d3af7e4c8fa4911502efa61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputActions: {fileID: -944628639613478452, guid: 9a1b7e24aafe2fb4ebfa82823020acb1, type: 3}
 --- !u!4 &2091014650
 Transform:
   m_ObjectHideFlags: 0
