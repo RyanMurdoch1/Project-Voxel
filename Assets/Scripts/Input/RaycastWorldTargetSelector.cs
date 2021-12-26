@@ -1,0 +1,22 @@
+﻿using UnityEngine;
+
+public class RaycastWorldTargetSelector : MonoBehaviour, IWorldTargetSelector
+{
+    private Camera _camera;
+
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
+
+    public WorldSelection ReturnTarget()
+    {
+        var ray = _camera.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit))
+        {
+            return new WorldSelection(false, null, Vector3.zero);
+        }
+
+        return new WorldSelection(true, hit.transform, hit.point);
+    }
+}
