@@ -11,7 +11,7 @@ public class RaycastWorldTargetSelector : MonoBehaviour, IWorldTargetSelector
 
     public WorldSelection ReturnTarget()
     {
-        var ray = _camera.ScreenPointToRay(Input.mousePosition);
+        var ray = _camera.ScreenPointToRay(InputManager.GetCursorPosition());
         if (!Physics.Raycast(ray, out var hit))
         {
             return new WorldSelection(false, null, Vector3.zero);

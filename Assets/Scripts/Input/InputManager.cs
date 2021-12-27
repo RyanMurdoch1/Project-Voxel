@@ -12,6 +12,11 @@ public class InputManager : MonoBehaviour
     public static event InteractButtonPressed OnInteraction;
 
     public static bool QueuingActive;
+
+    public static Vector2 GetCursorPosition()
+    {
+        return Mouse.current.position.ReadValue();
+    }
     
     private void OnEnable()
     {
