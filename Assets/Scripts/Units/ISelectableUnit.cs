@@ -1,7 +1,9 @@
-﻿
-public interface ISelectableUnit
+﻿namespace Units
 {
-    void Select();
-    void Unselect();
-    void IssueAction(UnitAction action, bool addToQueue);
+    public interface ISelectableUnit
+    {
+        void Select();
+        void Unselect();
+        void IssueCommand(UnitCommand action, bool addToQueue);
+    }
 }

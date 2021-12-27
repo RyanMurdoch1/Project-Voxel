@@ -1,4 +1,7 @@
-﻿public interface IWorldTargetSelector
+﻿namespace Input
 {
-    public WorldSelection ReturnTarget();
+    public interface IWorldTargetSelector
+    {
+        public WorldSelection ReturnTarget();
+    }
 }

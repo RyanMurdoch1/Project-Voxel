@@ -2,71 +2,72 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class UnitController : MonoBehaviour, ISelectableUnit
+namespace Units
 {
-    [SerializeField] private Material selectedMaterial, unselectedMaterial;
+    [RequireComponent(typeof(ISelectionVisualizer))]
+    public class UnitController : MonoBehaviour, ISelectableUnit
+    {
+        private NavMeshAgent _navigationAgent;
+        private ISelectionVisualizer _selectionVisualizer;
     
-    private NavMeshAgent _navigationAgent;
-    private bool _hasAction;
-    private UnitAction _currentAction;
-    private Queue<UnitAction> _actionQueue;
-    private MeshRenderer _meshRenderer;
+        private bool _hasUncompletedCommand;
+        private UnitCommand _currentCommand;
+        private Queue<UnitCommand> _commandQueue;
 
-    private void Awake()
-    {
-        _navigationAgent = GetComponent<NavMeshAgent>();
-        _actionQueue = new Queue<UnitAction>();
-        _meshRenderer = GetComponent<MeshRenderer>();
-    }
-
-    public NavMeshAgent GetUnitNavigationAgent()
-    {
-        return _navigationAgent;
-    }
-    
-    public void IssueAction(UnitAction action, bool addToQueue)
-    {
-        if (IsActionForQueue(addToQueue))
+        private void Awake()
         {
-            _actionQueue.Enqueue(action);
-            return;
+            _selectionVisualizer = GetComponent<ISelectionVisualizer>();
+            _navigationAgent = GetComponent<NavMeshAgent>();
+            _commandQueue = new Queue<UnitCommand>();
         }
 
-        _actionQueue.Clear();
-        StartNewAction(action);
-    }
+        public NavMeshAgent GetUnitNavigationAgent() => _navigationAgent;
 
-    public void CompleteAction()
-    {
-        if (UnitHasQueuedAction())
+        public void IssueCommand(UnitCommand action, bool addToQueue)
         {
-            StartNewAction(_actionQueue.Dequeue());
-            return;
+            if (IsCommandForQueue(addToQueue))
+            {
+                _commandQueue.Enqueue(action);
+                return;
+            }
+
+            _commandQueue.Clear();
+            StartNewCommand(action);
         }
 
-        _hasAction = false;
-    }
-    
-    public void Select() => _meshRenderer.material = selectedMaterial;
-
-    public void Unselect() => _meshRenderer.material = unselectedMaterial;
-    
-    private void StartNewAction(UnitAction action)
-    {
-        _hasAction = true;
-        _currentAction = action;
-        _currentAction.BeginAction(this);
-    }
-
-    private void Update()
-    {
-        if (_hasAction)
+        public void CompleteCommand()
         {
-            _currentAction.UpdateAction();
+            if (UnitHasQueuedCommand())
+            {
+                StartNewCommand(_commandQueue.Dequeue());
+                return;
+            }
+
+            _hasUncompletedCommand = false;
         }
+    
+        public void Select() => _selectionVisualizer.OnSelect();
+
+        public void Unselect() => _selectionVisualizer.OnDeselect();
+    
+        private void StartNewCommand(UnitCommand action)
+        {
+            _hasUncompletedCommand = true;
+            _currentCommand?.CancelCommand();
+            _currentCommand = action;
+            _currentCommand.BeginCommand(this);
+        }
+
+        private void Update()
+        {
+            if (_hasUncompletedCommand)
+            {
+                _currentCommand.UpdateCommandState();
+            }
+        }
+
+        private bool IsCommandForQueue(bool addToQueue) => addToQueue && _hasUncompletedCommand;
+
+        private bool UnitHasQueuedCommand() => _commandQueue.Count != 0;
     }
-
-    private bool IsActionForQueue(bool addToQueue) => addToQueue && _hasAction;
-
-    private bool UnitHasQueuedAction() => _actionQueue.Count != 0;
 }

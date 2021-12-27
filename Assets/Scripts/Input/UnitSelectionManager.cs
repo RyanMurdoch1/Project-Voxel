@@ -1,3 +1,6 @@
+using Helpers;
+using Interactables;
+using Units;
 using UnityEngine;
 
 namespace Input
@@ -31,7 +34,15 @@ namespace Input
         
             if (selection.SelectedTransform.CompareTag(WorldTagHelper.Destination) && _selectedUnit != null)
             {
-                _selectedUnit.IssueAction(new MoveToPointAction(selection.SelectionPoint), InputManager.QueuingActive);
+                _selectedUnit.IssueCommand(new MoveToPointCommand(selection.SelectionPoint), InputManager.QueuingActive);
+            }
+            
+            if (selection.SelectedTransform.CompareTag(WorldTagHelper.Harvestable) && _selectedUnit != null)
+            {
+                if (selection.SelectedTransform.TryGetComponent(typeof(HarvestableObject), out var harvestableObj))
+                {
+                    _selectedUnit.IssueCommand(new HarvestResourceCommand((HarvestableObject)harvestableObj), InputManager.QueuingActive);
+                }
             }
         }
 

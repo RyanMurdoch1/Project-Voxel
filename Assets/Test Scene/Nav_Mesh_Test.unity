@@ -668,6 +668,7 @@ GameObject:
   - component: {fileID: 903214391}
   - component: {fileID: 903214390}
   - component: {fileID: 903214396}
+  - component: {fileID: 903214397}
   m_Layer: 0
   m_Name: Agent (1)
   m_TagString: Agent
@@ -687,8 +688,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcc875771c332db4fa374b58fbe74359, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedMaterial: {fileID: 2100000, guid: 2fe90849a374555429b25626c0d7454f, type: 2}
-  unselectedMaterial: {fileID: 2100000, guid: 626df9810bf1fec499fc683eba696163, type: 2}
 --- !u!195 &903214391
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -804,6 +803,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &903214397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903214389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e5b8634cc743238c10a8adef41d7f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedMaterial: {fileID: 2100000, guid: 2fe90849a374555429b25626c0d7454f, type: 2}
+  unselectedMaterial: {fileID: 2100000, guid: 626df9810bf1fec499fc683eba696163, type: 2}
 --- !u!1 &1288324993
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,6 +913,36 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288324993}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1347571630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1347571631}
+  m_Layer: 0
+  m_Name: '[ResourceStorageManager]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1347571631
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347571630}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.3877525, y: -1.3290596, z: -6.6507874}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1367172035
 Mesh:
   m_ObjectHideFlags: 0
@@ -1590,6 +1633,7 @@ GameObject:
   - component: {fileID: 1458282137}
   - component: {fileID: 1458282136}
   - component: {fileID: 1458282142}
+  - component: {fileID: 1458282143}
   m_Layer: 0
   m_Name: Agent (2)
   m_TagString: Agent
@@ -1609,8 +1653,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcc875771c332db4fa374b58fbe74359, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedMaterial: {fileID: 2100000, guid: 2fe90849a374555429b25626c0d7454f, type: 2}
-  unselectedMaterial: {fileID: 2100000, guid: 626df9810bf1fec499fc683eba696163, type: 2}
 --- !u!195 &1458282137
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1726,6 +1768,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1458282143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458282135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e5b8634cc743238c10a8adef41d7f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedMaterial: {fileID: 2100000, guid: 2fe90849a374555429b25626c0d7454f, type: 2}
+  unselectedMaterial: {fileID: 2100000, guid: 626df9810bf1fec499fc683eba696163, type: 2}
 --- !u!1 &1471380382
 GameObject:
   m_ObjectHideFlags: 0
@@ -2317,9 +2373,10 @@ GameObject:
   - component: {fileID: 1714681544}
   - component: {fileID: 1714681547}
   - component: {fileID: 1714681548}
+  - component: {fileID: 1714681549}
   m_Layer: 3
-  m_Name: Interactable
-  m_TagString: Untagged
+  m_Name: Scrap Metal
+  m_TagString: Harvestable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2432,6 +2489,19 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &1714681549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714681542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ed61433bd57d648abd30bed09a6055, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  harvestableData: {fileID: 11400000, guid: 6438c4ea7c4375b4cacc3c93caac5e97, type: 2}
 --- !u!1 &1791408969
 GameObject:
   m_ObjectHideFlags: 0
