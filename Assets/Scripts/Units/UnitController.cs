@@ -5,60 +5,68 @@ using UnityEngine.AI;
 public class UnitController : MonoBehaviour, ISelectableUnit
 {
     [SerializeField] private Material selectedMaterial, unselectedMaterial;
-    private const float ReachedDestinationThreshold = 0.1f;
-    private NavMeshAgent _unit;
-    private Queue<Vector3> _destinationsQueue;
-    private Vector3 _currentDestination;
+    
+    private NavMeshAgent _navigationAgent;
+    private bool _hasAction;
+    private UnitAction _currentAction;
+    private Queue<UnitAction> _actionQueue;
     private MeshRenderer _meshRenderer;
 
     private void Awake()
     {
-        _unit = GetComponent<NavMeshAgent>();
-        _destinationsQueue = new Queue<Vector3>(5);
+        _navigationAgent = GetComponent<NavMeshAgent>();
+        _actionQueue = new Queue<UnitAction>();
         _meshRenderer = GetComponent<MeshRenderer>();
     }
 
-    public void IssueDirection(Vector3 destination, bool addToQueue)
+    public NavMeshAgent GetUnitNavigationAgent()
     {
-        if (IsDestinationForQueue(destination, addToQueue))
+        return _navigationAgent;
+    }
+    
+    public void IssueAction(UnitAction action, bool addToQueue)
+    {
+        if (IsActionForQueue(addToQueue))
         {
-            _destinationsQueue.Enqueue(destination);
+            _actionQueue.Enqueue(action);
+            return;
         }
-        else
-        {
-            _destinationsQueue.Clear();
-            _currentDestination = destination;
-            UpdateUnitDestination();
-        }
+
+        _actionQueue.Clear();
+        StartNewAction(action);
     }
 
+    public void CompleteAction()
+    {
+        if (UnitHasQueuedAction())
+        {
+            StartNewAction(_actionQueue.Dequeue());
+            return;
+        }
+
+        _hasAction = false;
+    }
+    
     public void Select() => _meshRenderer.material = selectedMaterial;
 
     public void Unselect() => _meshRenderer.material = unselectedMaterial;
+    
+    private void StartNewAction(UnitAction action)
+    {
+        _hasAction = true;
+        _currentAction = action;
+        _currentAction.BeginAction(this);
+    }
 
     private void Update()
     {
-        CheckDestinationQueue();
+        if (_hasAction)
+        {
+            _currentAction.UpdateAction();
+        }
     }
 
-    private bool IsDestinationForQueue(Vector3 destination, bool addToQueue)
-    {
-        return addToQueue && _destinationsQueue.Count != 0 || addToQueue && destination != _currentDestination;
-    }
-    
-    private void UpdateUnitDestination()
-    {
-        _unit.destination = _currentDestination;
-    }
+    private bool IsActionForQueue(bool addToQueue) => addToQueue && _hasAction;
 
-    private void CheckDestinationQueue()
-    {
-        if (!UnitHasReachedCurrentDestination() || !UnitHasQueuedDestination()) return;
-        _currentDestination = _destinationsQueue.Dequeue();
-        UpdateUnitDestination();
-    }
-
-    private bool UnitHasQueuedDestination() => _destinationsQueue.Count != 0;
-
-    private bool UnitHasReachedCurrentDestination() => _unit.remainingDistance < ReachedDestinationThreshold;
+    private bool UnitHasQueuedAction() => _actionQueue.Count != 0;
 }

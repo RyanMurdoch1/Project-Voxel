@@ -31,7 +31,7 @@ namespace Input
         
             if (selection.SelectedTransform.CompareTag(WorldTagHelper.Destination) && _selectedUnit != null)
             {
-                _selectedUnit.IssueDirection(selection.SelectionPoint, InputManager.QueuingActive);
+                _selectedUnit.IssueAction(new MoveToPointAction(selection.SelectionPoint), InputManager.QueuingActive);
             }
         }
 

@@ -37,6 +37,11 @@ public class HarvestableObject : MonoBehaviour
         StopCoroutine(HarvestObjectRoutine());
     }
 
+    public bool HasBeenHarvested()
+    {
+        return _harvestRemainingSeconds <= 0;
+    }
+
     private IEnumerator HarvestObjectRoutine()
     {
         while (_harvestRemainingSeconds > 0)
