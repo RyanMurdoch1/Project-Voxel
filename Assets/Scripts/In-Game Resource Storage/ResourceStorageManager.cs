@@ -8,11 +8,6 @@ namespace In_Game_Resource_Storage
         [SerializeField] private List<ResourceStorageBuilding> resourceStorageBuildings;
         [SerializeField] private List<ResourceStorageBuilding> availableResourceStorageBuildings;
 
-        private void Awake()
-        {
-            resourceStorageBuildings = new List<ResourceStorageBuilding>();
-        }
-
         private bool HasAvailableStorageBuildings()
         {
             return availableResourceStorageBuildings.Count != 0;
@@ -38,12 +33,13 @@ namespace In_Game_Resource_Storage
                 return false;
             }
         
-            var closestStorage = resourceStorageBuildings[0];
-            for (var i = 0; i < resourceStorageBuildings.Count; i++)
+            var closestStorage = availableResourceStorageBuildings[0];
+            
+            for (var i = 0; i < availableResourceStorageBuildings.Count; i++)
             {
                 if (BuildingAtIndexIsCloserThanCurrentClosestBuilding(unitPosition, i, closestStorage))
                 {
-                    closestStorage = resourceStorageBuildings[i];
+                    closestStorage = availableResourceStorageBuildings[i];
                 }
             }
 
@@ -53,7 +49,7 @@ namespace In_Game_Resource_Storage
 
         private bool BuildingAtIndexIsCloserThanCurrentClosestBuilding(Vector3 unitPosition, int i, Component closestStorage)
         {
-            return Vector3.Distance(resourceStorageBuildings[i].transform.position, unitPosition) < Vector3.Distance(closestStorage.transform.position, unitPosition);
+            return Vector3.Distance(availableResourceStorageBuildings[i].transform.position, unitPosition) < Vector3.Distance(closestStorage.transform.position, unitPosition);
         }
     }
 }

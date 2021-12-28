@@ -26,6 +26,11 @@ namespace Input
             {
                 TrySelectHitAgent(selection.SelectedTransform);
             }
+            else if (_selectedUnit != null)
+            {
+                _selectedUnit.Unselect();
+                _selectedUnit = null;
+            }
         }
 
         private void OnInteract()

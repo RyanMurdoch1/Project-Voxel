@@ -1,6 +1,4 @@
 ﻿using Interactables;
-using UnityEngine;
-using UnityEngine.AI;
 
 namespace Units
 {
@@ -8,7 +6,6 @@ namespace Units
     {
         private const float ReachedDestinationThreshold = 2f;
         private readonly HarvestableObject _harvestableObject;
-        private NavMeshAgent _navigationAgent;
         private bool _hasBeganHarvesting;
 
         public HarvestResourceCommand(HarvestableObject harvestableObj)
@@ -19,21 +16,18 @@ namespace Units
         public override void BeginCommand(UnitController unitController)
         {
             base.BeginCommand(unitController);
-            _navigationAgent = Unit.GetUnitNavigationAgent();
-            _navigationAgent.destination = _harvestableObject.transform.position;
-            Debug.Log("Harvest Action Issue to " + unitController.gameObject.name);
+            NavigationAgent.destination = _harvestableObject.transform.position;
         }
 
         public override void UpdateCommandState()
         {
-            if (_harvestableObject.HasBeenHarvested() && !UnitHasReachedCurrentDestination())
+            if (_harvestableObject.HasBeenHarvested() && !UnitHasReachedCurrentDestination(ReachedDestinationThreshold))
             {
                 CompleteCommand();
                 return;
             }
 
-            if (!UnitHasReachedCurrentDestination() || _hasBeganHarvesting) return;
-            Debug.Log("Began Harvesting " + Unit.gameObject.name);
+            if (!UnitHasReachedCurrentDestination(ReachedDestinationThreshold) || _hasBeganHarvesting) return;
             _harvestableObject.BeginHarvesting(Unit);
             _hasBeganHarvesting = true;
         }
@@ -45,7 +39,5 @@ namespace Units
                 _harvestableObject.CancelHarvesting(Unit);
             }
         }
-        
-        private bool UnitHasReachedCurrentDestination() => _navigationAgent.remainingDistance < ReachedDestinationThreshold;
     }
 }

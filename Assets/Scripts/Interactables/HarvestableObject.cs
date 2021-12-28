@@ -11,12 +11,13 @@ namespace Interactables
         private List<UnitController> _harvestingUnits;
         private float _harvestRemainingSeconds;
         private bool _isBeingHarvested;
-        private int _harvestingUnitCount;
+        private int _harvestingUnitCount, _harvestableResourceCount;
 
         private void Awake()
         {
             _harvestingUnits = new List<UnitController>();
             _harvestRemainingSeconds = harvestableData.harvestingTimeInSeconds;
+            _harvestableResourceCount = harvestableData.totalHarvestableUnits;
         }
 
         public void BeginHarvesting(UnitController unit)
@@ -60,10 +61,18 @@ namespace Interactables
         {
             for (var i = 0; i < _harvestingUnits.Count; i++)
             {
-                // distribute resources 
-                // set new store resource action
+                if (_harvestableResourceCount > 0)
+                {
+                    var distributedUnits = _harvestingUnits[i].GetUnitInformation().unitResourceCapacity;
+                    _harvestingUnits[i].IssueCommandOverride(new StoreResourceCommand(harvestableData.harvestableType, distributedUnits));
+                    _harvestableResourceCount -= distributedUnits;
+                    continue;
+                }
+                
                 _harvestingUnits[i].CompleteCommand();
             }
+            
+            // drop remaining resources
             
             gameObject.SetActive(false);
         }

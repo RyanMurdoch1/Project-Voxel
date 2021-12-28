@@ -7,9 +7,11 @@ namespace Units
     [RequireComponent(typeof(ISelectionVisualizer))]
     public class UnitController : MonoBehaviour, ISelectableUnit
     {
+        [SerializeField] private UnitInformation unitInformation;
+        [SerializeField] private GameObject heldObj;
+        
         private NavMeshAgent _navigationAgent;
         private ISelectionVisualizer _selectionVisualizer;
-    
         private bool _hasUncompletedCommand;
         private UnitCommand _currentCommand;
         private Queue<UnitCommand> _commandQueue;
@@ -18,11 +20,19 @@ namespace Units
         {
             _selectionVisualizer = GetComponent<ISelectionVisualizer>();
             _navigationAgent = GetComponent<NavMeshAgent>();
+            _navigationAgent.speed = unitInformation.unitSpeed;
             _commandQueue = new Queue<UnitCommand>();
         }
 
         public NavMeshAgent GetUnitNavigationAgent() => _navigationAgent;
 
+        public UnitInformation GetUnitInformation() => unitInformation;
+
+        public void SetHeldObjectActive(bool active)
+        {
+            heldObj.SetActive(active);
+        }
+        
         public void IssueCommand(UnitCommand action, bool addToQueue)
         {
             if (IsCommandForQueue(addToQueue))
@@ -32,6 +42,11 @@ namespace Units
             }
 
             _commandQueue.Clear();
+            StartNewCommand(action);
+        }
+
+        public void IssueCommandOverride(UnitCommand action)
+        {
             StartNewCommand(action);
         }
 
