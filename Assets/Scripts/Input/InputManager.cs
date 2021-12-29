@@ -13,8 +13,10 @@ namespace Input
         public static event SelectButtonPressed OnSelection;
         public delegate void InteractButtonPressed();
         public static event InteractButtonPressed OnInteraction;
+        public delegate void SelectionIsHeld(bool isHeld);
+        public static event SelectionIsHeld OnSelectionHeld;
 
-        public static bool QueuingActive;
+        public static bool QueueingActive;
 
         public static Vector2 GetCursorPosition()
         {
@@ -30,13 +32,25 @@ namespace Input
             _queue.started += QueueDown;
             _queue.canceled += QueueUp;
             _select.performed += OnSelect;
+            _select.started += SelectionStarted;
+            _select.canceled += SelectionEnded;
             _interact.performed += OnInteract;
-            QueuingActive = false;
+            QueueingActive = false;
         }
 
-        private static void QueueDown(InputAction.CallbackContext context) => QueuingActive = true;
+        private static void SelectionStarted(InputAction.CallbackContext context)
+        {
+            OnSelectionHeld?.Invoke(true);
+        }
 
-        private static void QueueUp(InputAction.CallbackContext context) => QueuingActive = false;
+        private static void SelectionEnded(InputAction.CallbackContext context)
+        {
+            OnSelectionHeld?.Invoke(false);
+        }
+
+        private static void QueueDown(InputAction.CallbackContext context) => QueueingActive = true;
+
+        private static void QueueUp(InputAction.CallbackContext context) => QueueingActive = false;
 
         private static void OnSelect(InputAction.CallbackContext context)
         {

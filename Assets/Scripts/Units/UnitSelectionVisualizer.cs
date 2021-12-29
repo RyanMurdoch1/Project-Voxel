@@ -1,16 +1,14 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 
 namespace Units
 {
     public class UnitSelectionVisualizer : MonoBehaviour, ISelectionVisualizer
     {
-        [SerializeField] private Material selectedMaterial, unselectedMaterial;
-        private MeshRenderer _meshRenderer;
+        [SerializeField] private DecalProjector selectionProjector;
 
-        private void Awake() => _meshRenderer = GetComponent<MeshRenderer>();
+        public void OnSelect() => selectionProjector.enabled = true;
 
-        public void OnSelect() => _meshRenderer.material = selectedMaterial;
-
-        public void OnDeselect() => _meshRenderer.material = unselectedMaterial;
+        public void OnDeselect() => selectionProjector.enabled = false;
     }
 }
