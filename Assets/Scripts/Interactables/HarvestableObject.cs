@@ -5,22 +5,21 @@ using UnityEngine;
 
 namespace Interactables
 {
-    public class HarvestableObject : MonoBehaviour
+    public class HarvestableObject : MonoBehaviour, IInteractableObject
     {
         [SerializeField] private HarvestableData harvestableData;
         private List<UnitController> _harvestingUnits;
         private float _harvestRemainingSeconds;
         private bool _isBeingHarvested;
-        private int _harvestingUnitCount, _harvestableResourceCount;
+        private int _harvestingUnitCount;
 
         private void Awake()
         {
             _harvestingUnits = new List<UnitController>();
             _harvestRemainingSeconds = harvestableData.harvestingTimeInSeconds;
-            _harvestableResourceCount = harvestableData.totalHarvestableUnits;
         }
 
-        public void BeginHarvesting(UnitController unit)
+        public void BeginInteraction(UnitController unit)
         {
             _harvestingUnits.Add(unit);
             if (!_isBeingHarvested)
@@ -32,7 +31,7 @@ namespace Interactables
             _harvestingUnitCount = _harvestingUnits.Count;
         }
 
-        public void CancelHarvesting(UnitController unit)
+        public void CancelInteraction(UnitController unit)
         {
             _harvestingUnits.Remove(unit);
             _harvestingUnitCount = _harvestingUnits.Count;
@@ -41,9 +40,14 @@ namespace Interactables
             StopAllCoroutines();
         }
 
-        public bool HasBeenHarvested()
+        public Vector3 GetWorldLocation()
         {
-            return _harvestRemainingSeconds <= 0;
+            return gameObject.transform.position;
+        }
+
+        public bool IsValidInteraction()
+        {
+            return _harvestRemainingSeconds > 0;
         }
 
         private IEnumerator HarvestObjectRoutine()
@@ -59,21 +63,23 @@ namespace Interactables
 
         private void CompleteHarvest()
         {
-            for (var i = 0; i < _harvestingUnits.Count; i++)
+            for (var i = 0; i < _harvestingUnitCount; i++)
             {
-                if (_harvestableResourceCount > 0)
-                {
-                    var distributedUnits = _harvestingUnits[i].GetUnitInformation().unitResourceCapacity;
-                    _harvestingUnits[i].IssueCommandOverride(new StoreResourceCommand(harvestableData.harvestableType, distributedUnits));
-                    _harvestableResourceCount -= distributedUnits;
-                    continue;
-                }
-                
                 _harvestingUnits[i].CompleteCommand();
             }
-            
-            // drop remaining resources
-            
+
+            for (var i = 0; i < harvestableData.harvestableContents.Count; i++)
+            {
+                var spawnedCollectable = Instantiate(harvestableData.harvestableContents[i]);
+                if (i < _harvestingUnitCount)
+                {
+                    spawnedCollectable.BeginInteraction(_harvestingUnits[i]);
+                    continue;
+                }
+
+                spawnedCollectable.gameObject.transform.position = gameObject.transform.position;
+            }
+
             gameObject.SetActive(false);
         }
     }

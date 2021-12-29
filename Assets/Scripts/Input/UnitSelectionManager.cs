@@ -41,13 +41,12 @@ namespace Input
             {
                 _selectedUnit.IssueCommand(new MoveToPointCommand(selection.SelectionPoint), InputManager.QueuingActive);
             }
+
+            if (!selection.SelectedTransform.CompareTag(WorldTagHelper.Interactable) || _selectedUnit == null) return;
             
-            if (selection.SelectedTransform.CompareTag(WorldTagHelper.Harvestable) && _selectedUnit != null)
+            if (selection.SelectedTransform.TryGetComponent(typeof(IInteractableObject), out var harvestableObj))
             {
-                if (selection.SelectedTransform.TryGetComponent(typeof(HarvestableObject), out var harvestableObj))
-                {
-                    _selectedUnit.IssueCommand(new HarvestResourceCommand((HarvestableObject)harvestableObj), InputManager.QueuingActive);
-                }
+                _selectedUnit.IssueCommand(new InteractWithObjectCommand((IInteractableObject)harvestableObj), InputManager.QueuingActive);
             }
         }
 

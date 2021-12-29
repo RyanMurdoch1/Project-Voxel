@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Scrap Metal
   m_EditorClassIdentifier: 
   harvestingTimeInSeconds: 2
-  harvestableType: 0
-  totalHarvestableUnits: 2
+  harvestableContents:
+  - {fileID: -7225869264306709671, guid: cc10d71eaf08c7445999046b0a0c926f, type: 3}
+  - {fileID: -7225869264306709671, guid: cc10d71eaf08c7445999046b0a0c926f, type: 3}
+  - {fileID: -7225869264306709671, guid: cc10d71eaf08c7445999046b0a0c926f, type: 3}

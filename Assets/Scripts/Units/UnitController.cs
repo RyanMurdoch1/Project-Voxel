@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Interactables;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,8 +9,9 @@ namespace Units
     public class UnitController : MonoBehaviour, ISelectableUnit
     {
         [SerializeField] private UnitInformation unitInformation;
-        [SerializeField] private GameObject heldObj;
-        
+        [SerializeField] private Transform unitHand;
+
+        private CollectableObject _currentCollectable;
         private NavMeshAgent _navigationAgent;
         private ISelectionVisualizer _selectionVisualizer;
         private bool _hasUncompletedCommand;
@@ -26,11 +28,23 @@ namespace Units
 
         public NavMeshAgent GetUnitNavigationAgent() => _navigationAgent;
 
-        public UnitInformation GetUnitInformation() => unitInformation;
-
-        public void SetHeldObjectActive(bool active)
+        public void ReceiveCollectable(CollectableObject collectable)
         {
-            heldObj.SetActive(active);
+            _currentCollectable = collectable;
+            Transform collectableTransform;
+            (collectableTransform = _currentCollectable.transform).SetParent(unitHand);
+            collectableTransform.localPosition = Vector3.zero;
+        }
+
+        public void DropCollectable()
+        {
+            _currentCollectable.CancelInteraction(this);
+            _currentCollectable = null;
+        }
+
+        public void DistributeCollectable()
+        {
+            Destroy(_currentCollectable.gameObject);
         }
         
         public void IssueCommand(UnitCommand action, bool addToQueue)
@@ -58,9 +72,9 @@ namespace Units
                 return;
             }
 
-            _hasUncompletedCommand = false;
+            SetUnitIdle();
         }
-    
+        
         public void Select() => _selectionVisualizer.OnSelect();
 
         public void Unselect() => _selectionVisualizer.OnDeselect();
@@ -79,6 +93,13 @@ namespace Units
             {
                 _currentCommand.UpdateCommandState();
             }
+        }
+        
+        private void SetUnitIdle()
+        {
+            _navigationAgent.destination = transform.position;
+            _currentCommand = null;
+            _hasUncompletedCommand = false;
         }
 
         private bool IsCommandForQueue(bool addToQueue) => addToQueue && _hasUncompletedCommand;

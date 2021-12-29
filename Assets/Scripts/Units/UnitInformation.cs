@@ -6,6 +6,5 @@ namespace Units
     public class UnitInformation : ScriptableObject
     {
         public float unitSpeed;
-        public int unitResourceCapacity;
     }
 }

@@ -4,6 +4,6 @@
     {
         public const string Destination = "Destination";
         public const string Agent = "Agent";
-        public const string Harvestable = "Harvestable";
+        public const string Interactable = "Interactable";
     }
 }
