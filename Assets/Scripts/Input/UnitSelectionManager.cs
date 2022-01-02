@@ -7,37 +7,56 @@ using UnityEngine;
 namespace Input
 {
     [RequireComponent(typeof(IWorldTargetSelector))]
+    [RequireComponent(typeof(IWorldRectSelector))]
     public class UnitSelectionManager : MonoBehaviour
     {
-        private Color _selectionColor, _selectionBorderColor;
+        private List<ISelectableUnit> _allSelectableUnits;
+        private IWorldRectSelector _selectionRectVisualizer;
         private IWorldTargetSelector _worldTargetSelector;
         private List<ISelectableUnit> _selectedUnits;
-        private bool _isSelecting;
-        private Vector2 _startSelectionScreenPosition;
         
         private void OnEnable()
         {
-            _selectedUnits = new List<ISelectableUnit>();
-            _selectionColor = new Color(0.5f, 1f, 0.4f, 0.2f);
-            _selectionBorderColor = new Color(0.5f, 1f, 0.4f);
-            _worldTargetSelector = GetComponent<IWorldTargetSelector>();
+            Initialize();
+            SubscribeToInputManager();
+            GetAllSelectableUnits();
+        }
+
+        private void GetAllSelectableUnits()
+        {
+            _allSelectableUnits = new List<ISelectableUnit>();
+            var selectableUnits = GameObject.FindGameObjectsWithTag(WorldTagHelper.Unit);
+            for (var i = 0; i < selectableUnits.Length; i++)
+            {
+                _allSelectableUnits.Add(selectableUnits[i].GetComponent<ISelectableUnit>());
+            }
+        }
+
+        private void SubscribeToInputManager()
+        {
             InputManager.OnSelection += OnSelect;
             InputManager.OnInteraction += OnInteract;
             InputManager.OnSelectionHeld += OnSelectionHeld;
+        }
+
+        private void Initialize()
+        {
+            _selectedUnits = new List<ISelectableUnit>();
+            _worldTargetSelector = GetComponent<IWorldTargetSelector>();
+            _selectionRectVisualizer = GetComponent<IWorldRectSelector>();
         }
 
         private void OnSelectionHeld(bool isHeld)
         {
             if (isHeld)
             {
-                _startSelectionScreenPosition = InputManager.GetCursorPosition();
+                _selectionRectVisualizer.StartDrawingRect();
             }
-            else if (InputManager.GetCursorPosition() != _startSelectionScreenPosition)
+            else if (_selectionRectVisualizer.HasDrawnSelectionRect())
             {
                 DeselectAllUnits();
-                SelectUnitsInSelectionRect();
+                _selectedUnits = _selectionRectVisualizer.ReturnUnitsInRect(_allSelectableUnits);
             }
-            _isSelecting = isHeld;
         }
 
         private void OnSelect()
@@ -46,7 +65,7 @@ namespace Input
         
             if (selection.SelectedTransform.CompareTag(WorldTagHelper.Unit))
             {
-                TrySelectHitAgent(selection.SelectedTransform);
+                TrySelectHitUnit(selection.SelectedTransform);
             }
             else if (_selectedUnits.Count != 0)
             {
@@ -77,28 +96,6 @@ namespace Input
             }
         }
         
-        private void OnGUI()
-        {
-            if (!_isSelecting) return;
-            var rect = ScreenSelectionHelper.GetScreenRect(_startSelectionScreenPosition, InputManager.GetCursorPosition());
-            ScreenSelectionHelper.DrawScreenRect(rect, _selectionColor);
-            ScreenSelectionHelper.DrawScreenRectBorder(rect, 1, _selectionBorderColor);
-        }
-        
-        private void SelectUnitsInSelectionRect()
-        {
-            var selectionBounds = ScreenSelectionHelper.GetViewportBounds(Camera.main, _startSelectionScreenPosition, InputManager.GetCursorPosition());
-            var selectableUnits = GameObject.FindGameObjectsWithTag(WorldTagHelper.Unit);
-            foreach (var unit in selectableUnits)
-            {
-                var inBounds = selectionBounds.Contains(Camera.main.WorldToViewportPoint(unit.transform.position));
-                if (!inBounds) continue;
-                var selectableUnit = unit.GetComponent<ISelectableUnit>();
-                _selectedUnits.Add(selectableUnit);
-                selectableUnit.Select();
-            }
-        }
-
         private bool WasSuccessfulSelection(out WorldSelection selection)
         {
             var worldSelection = _worldTargetSelector.ReturnTarget();
@@ -112,7 +109,7 @@ namespace Input
             return true;
         }
 
-        private void TrySelectHitAgent(Component hit)
+        private void TrySelectHitUnit(Component hit)
         {
             DeselectAllUnits();
             hit.TryGetComponent(out ISelectableUnit selectedUnit);

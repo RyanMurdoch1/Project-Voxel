@@ -1,13 +1,14 @@
-﻿using UnityEngine.AI;
+﻿using UnityEngine;
+using UnityEngine.AI;
 
 namespace Units
 {
     public abstract class UnitCommand
     {
-        protected UnitController Unit;
+        protected ISelectableUnit Unit;
         protected NavMeshAgent NavigationAgent;
     
-        public virtual void BeginCommand(UnitController unitController)
+        public virtual void BeginCommand(ISelectableUnit unitController)
         {
             Unit = unitController;
             NavigationAgent = Unit.GetUnitNavigationAgent();
@@ -28,6 +29,9 @@ namespace Units
             Unit.CompleteCommand();
         }
         
-        protected bool UnitHasReachedCurrentDestination(float reachedDestinationThreshold) => NavigationAgent.remainingDistance < reachedDestinationThreshold;
+        protected bool UnitHasReachedCurrentDestination(float reachedDestinationThreshold, Vector3 targetDestination)
+        {
+            return Vector3.Distance(Unit.GetUnitPosition(), targetDestination) < reachedDestinationThreshold;
+        }
     }
 }

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Helpers;
+using In_Game_Resource_Storage;
 using Interactables;
 using UnityEngine;
 using UnityEngine.AI;
@@ -42,26 +44,31 @@ namespace Units
             _currentCollectable = null;
         }
 
-        public void DistributeCollectable()
+        public void DistributeCollectable(ResourceStorageBuilding storageBuilding)
         {
-            Destroy(_currentCollectable.gameObject);
+            storageBuilding.DepositCollectable(_currentCollectable);
         }
         
-        public void IssueCommand(UnitCommand action, bool addToQueue)
+        public void IssueCommand(UnitCommand command, bool addToQueue)
         {
             if (IsCommandForQueue(addToQueue))
             {
-                _commandQueue.Enqueue(action);
+                _commandQueue.Enqueue(command);
                 return;
             }
 
             _commandQueue.Clear();
-            StartNewCommand(action);
+            StartNewCommand(command);
         }
 
-        public void IssueCommandOverride(UnitCommand action)
+        public Vector3 GetUnitPosition()
         {
-            StartNewCommand(action);
+            return gameObject.transform.position;
+        }
+
+        public void IssueCommandOverride(UnitCommand command)
+        {
+            StartNewCommand(command);
         }
 
         public void CompleteCommand()
@@ -79,17 +86,17 @@ namespace Units
 
         public void Unselect() => _selectionVisualizer.OnDeselect();
     
-        private void StartNewCommand(UnitCommand action)
+        private void StartNewCommand(UnitCommand command)
         {
             _hasUncompletedCommand = true;
             _currentCommand?.CancelCommand();
-            _currentCommand = action;
+            _currentCommand = command;
             _currentCommand.BeginCommand(this);
         }
 
         private void Update()
         {
-            if (_hasUncompletedCommand)
+            if (_hasUncompletedCommand && UpdateHelper.IsUpdatingFrame())
             {
                 _currentCommand.UpdateCommandState();
             }
@@ -97,7 +104,6 @@ namespace Units
         
         private void SetUnitIdle()
         {
-            _navigationAgent.destination = transform.position;
             _currentCommand = null;
             _hasUncompletedCommand = false;
         }

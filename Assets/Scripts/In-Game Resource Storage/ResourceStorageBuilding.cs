@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Interactables;
 using UnityEngine;
 
 namespace In_Game_Resource_Storage
@@ -6,30 +7,15 @@ namespace In_Game_Resource_Storage
     public class ResourceStorageBuilding : MonoBehaviour
     {
         [SerializeField] private ResourceStorageManager resourceStorageManager;
-        [SerializeField] private GameObject[] resourceObjs;
-        public int capacityInUnits;
-        public List<Harvestable> heldResources;
+        [SerializeField] private List<CollectableStorageSpot> storageSpots;
 
-        private void Awake()
+        public void DepositCollectable(CollectableObject collectableObject)
         {
-            heldResources = new List<Harvestable>(capacityInUnits);
-        }
-
-        public void DepositResources(Harvestable resource, int units)
-        {
-            for (var i = 0; i < units; i++)
+            for (var i = 0; i < storageSpots.Count; i++)
             {
-                heldResources.Add(resource);
-            }
-
-            if (heldResources.Count >= capacityInUnits)
-            {
-                resourceStorageManager.SetStorageBuildingAvailable(this, false);
-            }
-
-            for (var i = 0; i < heldResources.Count; i++)
-            {
-                resourceObjs[i].SetActive(true);
+                if (!storageSpots[i].IsNotOccupied()) continue;
+                storageSpots[i].StoreCollectable(collectableObject);
+                return;
             }
         }
     }

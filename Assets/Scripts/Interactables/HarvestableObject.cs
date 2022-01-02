@@ -8,30 +8,41 @@ namespace Interactables
     public class HarvestableObject : MonoBehaviour, IInteractableObject
     {
         [SerializeField] private HarvestableData harvestableData;
-        private List<UnitController> _harvestingUnits;
+        private readonly List<ISelectableUnit> _harvestingUnits = new List<ISelectableUnit>();
+        private readonly List<Vector3> _harvestingPositions = new List<Vector3>();
         private float _harvestRemainingSeconds;
         private bool _isBeingHarvested;
-        private int _harvestingUnitCount;
+        private int _harvestingUnitCount, _positionIndex;
+        private Vector3 _objectPosition;
 
         private void Awake()
         {
-            _harvestingUnits = new List<UnitController>();
+            _objectPosition = transform.position;
             _harvestRemainingSeconds = harvestableData.harvestingTimeInSeconds;
+            CalculateHarvestingPositions();
         }
 
-        public void BeginInteraction(UnitController unit)
+        private void CalculateHarvestingPositions()
+        {
+            for (var i = 0; i < harvestableData.maxHarvestingUnits; i++)
+            {
+                float radius = harvestableData.maxHarvestingUnits;
+                var angle = i * Mathf.PI * 2f / radius;
+                var position = _objectPosition + new Vector3(Mathf.Cos(angle) * radius, -2, Mathf.Sin(angle) * radius);
+                _harvestingPositions.Add(position);
+            }
+        }
+
+        public void BeginInteraction(ISelectableUnit unit)
         {
             _harvestingUnits.Add(unit);
-            if (!_isBeingHarvested)
-            {
-                _isBeingHarvested = true;
-                StartCoroutine(HarvestObjectRoutine());
-            }
-
             _harvestingUnitCount = _harvestingUnits.Count;
+            if (_isBeingHarvested) return;
+            _isBeingHarvested = true;
+            StartCoroutine(HarvestObjectRoutine());
         }
-
-        public void CancelInteraction(UnitController unit)
+        
+        public void CancelInteraction(ISelectableUnit unit)
         {
             _harvestingUnits.Remove(unit);
             _harvestingUnitCount = _harvestingUnits.Count;
@@ -40,9 +51,14 @@ namespace Interactables
             StopAllCoroutines();
         }
 
-        public Vector3 GetWorldLocation()
+        public Vector3 GetUnitDestination()
         {
-            return gameObject.transform.position;
+            _positionIndex++;
+            if (_positionIndex >= _harvestingPositions.Count)
+            {
+                _positionIndex = 0;
+            }
+            return _harvestingPositions[_positionIndex];
         }
 
         public bool IsValidInteraction()
@@ -77,7 +93,7 @@ namespace Interactables
                     continue;
                 }
 
-                spawnedCollectable.gameObject.transform.position = gameObject.transform.position;
+                spawnedCollectable.gameObject.transform.position = _objectPosition;
             }
 
             gameObject.SetActive(false);

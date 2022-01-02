@@ -8,5 +8,6 @@ namespace Interactables
     {
         public float harvestingTimeInSeconds;
         public List<CollectableObject> harvestableContents;
+        public int maxHarvestingUnits;
     }
 }

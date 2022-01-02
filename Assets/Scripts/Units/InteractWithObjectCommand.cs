@@ -1,11 +1,10 @@
 ﻿using Interactables;
-using UnityEngine;
 
 namespace Units
 {
     public class InteractWithObjectCommand : UnitCommand
     {
-        private const float ReachedDestinationThreshold = 2f;
+        private const float ReachedDestinationThreshold = 4f;
         private readonly IInteractableObject _interactiveObject;
         private bool _hasBeganInteraction;
 
@@ -14,10 +13,10 @@ namespace Units
             _interactiveObject = harvestableObj;
         }
 
-        public override void BeginCommand(UnitController unitController)
+        public override void BeginCommand(ISelectableUnit unitController)
         {
             base.BeginCommand(unitController);
-            NavigationAgent.destination = _interactiveObject.GetWorldLocation();
+            NavigationAgent.destination = _interactiveObject.GetUnitDestination();
         }
 
         public override void UpdateCommandState()
@@ -28,7 +27,7 @@ namespace Units
                 return;
             }
 
-            if (!UnitHasReachedCurrentDestination(ReachedDestinationThreshold) || _hasBeganInteraction) return;
+            if (_hasBeganInteraction || !UnitHasReachedCurrentDestination(ReachedDestinationThreshold, NavigationAgent.destination)) return;
             _interactiveObject.BeginInteraction(Unit);
             _hasBeganInteraction = true;
         }

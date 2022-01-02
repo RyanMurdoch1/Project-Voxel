@@ -5,18 +5,11 @@ namespace Units
 {
     public class StoreCollectableCommand : UnitCommand
     {
-        private const float ReachedDestinationThreshold = 2f;
+        private const float ReachedDestinationThreshold = 4f;
         private ResourceStorageBuilding _targetStorageBuilding;
-        private readonly Harvestable _resource;
-        private readonly int _units;
-
-        public StoreCollectableCommand(Harvestable resource, int units)
-        {
-            _resource = resource;
-            _units = units;
-        }
+        private Vector3 _storageDestination;
         
-        public override void BeginCommand(UnitController unitController)
+        public override void BeginCommand(ISelectableUnit unitController)
         {
             base.BeginCommand(unitController);
             var storageManager = Object.FindObjectsOfType<ResourceStorageManager>();
@@ -25,10 +18,11 @@ namespace Units
                 CancelCommand();
                 return;
             }
-            if (storageManager[0].FindAndReturnClosestStorageBuilding(unitController.transform.position, out var closestStorage))
+            if (storageManager[0].FindAndReturnClosestStorageBuilding(unitController.GetUnitPosition(), out var closestStorage))
             {
                 _targetStorageBuilding = closestStorage;
-                NavigationAgent.destination =  _targetStorageBuilding.transform.position;
+                _storageDestination = _targetStorageBuilding.transform.position;
+                NavigationAgent.destination =  _storageDestination;
             }
             else
             {
@@ -38,9 +32,8 @@ namespace Units
 
         public override void UpdateCommandState()
         {
-            if (!UnitHasReachedCurrentDestination(ReachedDestinationThreshold)) return;
-            _targetStorageBuilding.DepositResources(_resource, _units);
-            Unit.DistributeCollectable();
+            if (!UnitHasReachedCurrentDestination(ReachedDestinationThreshold, _storageDestination)) return;
+            Unit.DistributeCollectable(_targetStorageBuilding);
             CompleteCommand();
         }
 

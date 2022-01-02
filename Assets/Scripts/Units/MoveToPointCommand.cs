@@ -4,7 +4,7 @@ namespace Units
 {
     public class MoveToPointCommand : UnitCommand
     {
-        private const float ReachedDestinationThreshold = 2f;
+        private const float ReachedDestinationThreshold = 5f;
         private readonly Vector3 _destination;
 
         public MoveToPointCommand(Vector3 destination)
@@ -12,7 +12,7 @@ namespace Units
             _destination = destination;
         }
 
-        public override void BeginCommand(UnitController unitController)
+        public override void BeginCommand(ISelectableUnit unitController)
         {
             base.BeginCommand(unitController);
             NavigationAgent.destination = _destination;
@@ -20,7 +20,7 @@ namespace Units
 
         public override void UpdateCommandState()
         {
-            if (UnitHasReachedCurrentDestination(ReachedDestinationThreshold))
+            if (UnitHasReachedCurrentDestination(ReachedDestinationThreshold, _destination))
             {
                 CompleteCommand();
             }
