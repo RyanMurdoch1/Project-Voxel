@@ -1,64 +1,115 @@
 using System.Collections.Generic;
+using Helpers;
+using In_Game_Resource_Storage;
+using Interactables;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class UnitController : MonoBehaviour, ISelectableUnit
+namespace Units
 {
-    [SerializeField] private Material selectedMaterial, unselectedMaterial;
-    private const float ReachedDestinationThreshold = 0.1f;
-    private NavMeshAgent _unit;
-    private Queue<Vector3> _destinationsQueue;
-    private Vector3 _currentDestination;
-    private MeshRenderer _meshRenderer;
-
-    private void Awake()
+    [RequireComponent(typeof(ISelectionVisualizer))]
+    public class UnitController : MonoBehaviour, ISelectableUnit
     {
-        _unit = GetComponent<NavMeshAgent>();
-        _destinationsQueue = new Queue<Vector3>(5);
-        _meshRenderer = GetComponent<MeshRenderer>();
-    }
+        [SerializeField] private UnitInformation unitInformation;
+        [SerializeField] private Transform unitHand;
 
-    public void IssueDirection(Vector3 destination, bool addToQueue)
-    {
-        if (IsDestinationForQueue(destination, addToQueue))
+        private CollectableObject _currentCollectable;
+        private NavMeshAgent _navigationAgent;
+        private ISelectionVisualizer _selectionVisualizer;
+        private bool _hasUncompletedCommand;
+        private UnitCommand _currentCommand;
+        private Queue<UnitCommand> _commandQueue;
+
+        private void Awake()
         {
-            _destinationsQueue.Enqueue(destination);
+            _selectionVisualizer = GetComponent<ISelectionVisualizer>();
+            _navigationAgent = GetComponent<NavMeshAgent>();
+            _navigationAgent.speed = unitInformation.unitSpeed;
+            _commandQueue = new Queue<UnitCommand>();
         }
-        else
+
+        public NavMeshAgent GetUnitNavigationAgent() => _navigationAgent;
+
+        public void ReceiveCollectable(CollectableObject collectable)
         {
-            _destinationsQueue.Clear();
-            _currentDestination = destination;
-            UpdateUnitDestination();
+            _currentCollectable = collectable;
+            Transform collectableTransform;
+            (collectableTransform = _currentCollectable.transform).SetParent(unitHand);
+            collectableTransform.localPosition = Vector3.zero;
         }
-    }
 
-    public void Select() => _meshRenderer.material = selectedMaterial;
+        public void DropCollectable()
+        {
+            _currentCollectable.CancelInteraction(this);
+            _currentCollectable = null;
+        }
 
-    public void Unselect() => _meshRenderer.material = unselectedMaterial;
+        public void DistributeCollectable(ResourceStorageBuilding storageBuilding)
+        {
+            storageBuilding.DepositCollectable(_currentCollectable);
+        }
+        
+        public void IssueCommand(UnitCommand command, bool addToQueue)
+        {
+            if (IsCommandForQueue(addToQueue))
+            {
+                _commandQueue.Enqueue(command);
+                return;
+            }
 
-    private void Update()
-    {
-        CheckDestinationQueue();
-    }
+            _commandQueue.Clear();
+            StartNewCommand(command);
+        }
 
-    private bool IsDestinationForQueue(Vector3 destination, bool addToQueue)
-    {
-        return addToQueue && _destinationsQueue.Count != 0 || addToQueue && destination != _currentDestination;
-    }
+        public Vector3 GetUnitPosition()
+        {
+            return gameObject.transform.position;
+        }
+
+        public void IssueCommandOverride(UnitCommand command)
+        {
+            StartNewCommand(command);
+        }
+
+        public void CompleteCommand()
+        {
+            if (UnitHasQueuedCommand())
+            {
+                StartNewCommand(_commandQueue.Dequeue());
+                return;
+            }
+
+            SetUnitIdle();
+        }
+        
+        public void Select() => _selectionVisualizer.OnSelect();
+
+        public void Unselect() => _selectionVisualizer.OnDeselect();
     
-    private void UpdateUnitDestination()
-    {
-        _unit.destination = _currentDestination;
+        private void StartNewCommand(UnitCommand command)
+        {
+            _hasUncompletedCommand = true;
+            _currentCommand?.CancelCommand();
+            _currentCommand = command;
+            _currentCommand.BeginCommand(this);
+        }
+
+        private void Update()
+        {
+            if (_hasUncompletedCommand && UpdateHelper.IsUpdatingFrame())
+            {
+                _currentCommand.UpdateCommandState();
+            }
+        }
+        
+        private void SetUnitIdle()
+        {
+            _currentCommand = null;
+            _hasUncompletedCommand = false;
+        }
+
+        private bool IsCommandForQueue(bool addToQueue) => addToQueue && _hasUncompletedCommand;
+
+        private bool UnitHasQueuedCommand() => _commandQueue.Count != 0;
     }
-
-    private void CheckDestinationQueue()
-    {
-        if (!UnitHasReachedCurrentDestination() || !UnitHasQueuedDestination()) return;
-        _currentDestination = _destinationsQueue.Dequeue();
-        UpdateUnitDestination();
-    }
-
-    private bool UnitHasQueuedDestination() => _destinationsQueue.Count != 0;
-
-    private bool UnitHasReachedCurrentDestination() => _unit.remainingDistance < ReachedDestinationThreshold;
 }

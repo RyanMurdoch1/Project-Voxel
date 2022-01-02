@@ -1,7 +1,10 @@
-﻿public static class InputActionHelper
+﻿namespace Helpers
 {
-    public const string PlayerInputMap = "Player";
-    public const string SelectAction = "Select";
-    public const string InteractAction = "Interact";
-    public const string QueueAction = "Queue";
+    public static class InputActionHelper
+    {
+        public const string PlayerInputMap = "Player";
+        public const string SelectAction = "Select";
+        public const string InteractAction = "Interact";
+        public const string QueueAction = "Queue";
+    }
 }

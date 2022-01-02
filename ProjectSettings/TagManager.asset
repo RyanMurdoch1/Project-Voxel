@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Agent
   - Destination
+  - Harvestable
+  - Interactable
   layers:
   - Default
   - TransparentFX

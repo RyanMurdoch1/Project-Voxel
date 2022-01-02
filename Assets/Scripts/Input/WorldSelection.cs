@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
 
-public struct WorldSelection
+namespace Input
 {
-    public bool SuccessfulSelection;
-    public Transform SelectedTransform;
-    public Vector3 SelectionPoint;
-
-    public WorldSelection(bool successfulSelection, Transform selectedTransform, Vector3 selectionPoint)
+    public struct WorldSelection
     {
-        SuccessfulSelection = successfulSelection;
-        SelectedTransform = selectedTransform;
-        SelectionPoint = selectionPoint;
+        public readonly bool SuccessfulSelection;
+        public readonly Transform SelectedTransform;
+        public Vector3 SelectionPoint;
+
+        public WorldSelection(bool successfulSelection, Transform selectedTransform, Vector3 selectionPoint)
+        {
+            SuccessfulSelection = successfulSelection;
+            SelectedTransform = selectedTransform;
+            SelectionPoint = selectionPoint;
+        }
     }
 }

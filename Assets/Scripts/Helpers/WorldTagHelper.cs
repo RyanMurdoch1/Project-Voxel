@@ -1,5 +1,9 @@
-﻿public static class WorldTagHelper
+﻿namespace Helpers
 {
-    public const string Destination = "Destination";
-    public const string Agent = "Agent";
+    public static class WorldTagHelper
+    {
+        public const string Destination = "Destination";
+        public const string Unit = "Agent";
+        public const string Interactable = "Interactable";
+    }
 }
